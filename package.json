@@ -1,0 +1,29 @@
+{
+  "name": "sql_ts_fandom_server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArtemSlipchencko/SQL_TS_fandom_server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ArtemSlipchencko/SQL_TS_fandom_server/issues"
+  },
+  "homepage": "https://github.com/ArtemSlipchencko/SQL_TS_fandom_server#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "nodemon": "^2.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.11"
+  }
+}
