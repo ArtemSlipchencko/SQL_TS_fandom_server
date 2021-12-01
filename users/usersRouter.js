@@ -1,4 +1,6 @@
 const {
+  users,
+  isExist,
   createUser,
   loginUser,
   logoutUser,
@@ -9,7 +11,8 @@ const cors = require("cors");
 
 const userRouter = Router();
 
-userRouter.post("/register", cors(), createUser);
+userRouter.get("/", cors(), users);
+userRouter.post("/register", cors(), isExist, createUser);
 userRouter.post("/login", cors(), loginUser);
 userRouter.post("/logout", cors(), logoutUser);
 userRouter.get("/current", cors(), currentUser);

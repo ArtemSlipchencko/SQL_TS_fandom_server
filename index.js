@@ -11,16 +11,16 @@ class Server {
 
   start() {
     this.server = express();
-    // this.initMiddlewares();
+    this.initMiddlewares();
     this.initRoutes();
     this.listen();
   }
 
-  //   initMiddlewares() {
-  //     this.server.use(express.json());
-  //     this.server.use(cors());
-  //     this.server.options("*", cors());
-  //   }
+  initMiddlewares() {
+    this.server.use(express.json());
+    this.server.use(cors());
+    this.server.options("*", cors());
+  }
 
   initRoutes() {
     this.server.use("/users", userRouter);
