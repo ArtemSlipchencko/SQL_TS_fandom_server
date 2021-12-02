@@ -1,20 +1,23 @@
 const {
   users,
-  isExist,
   createUser,
   loginUser,
   logoutUser,
   currentUser,
 } = require("./usersController");
 const { Router } = require("express");
-const cors = require("cors");
+const {
+  authorization,
+  isExistSuccess,
+  isExistError,
+} = require("./../middlewares/middlewares");
 
 const userRouter = Router();
 
-userRouter.get("/", cors(), users);
-userRouter.post("/register", cors(), isExist, createUser);
-userRouter.post("/login", cors(), loginUser);
-userRouter.post("/logout", cors(), logoutUser);
-userRouter.get("/current", cors(), currentUser);
+userRouter.get("/", users);
+userRouter.post("/register", isExistError, createUser);
+userRouter.post("/login", isExistSuccess, loginUser);
+userRouter.post("/logout", authorization, logoutUser);
+userRouter.get("/current", authorization, currentUser);
 
 module.exports = userRouter;

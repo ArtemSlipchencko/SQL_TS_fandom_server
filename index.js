@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const userRouter = require("./users/usersRouter");
+const adminRouter = require("./admin/adminRouter");
+const moderRouter = require("./moders/modersRouter");
 
 const PORT = process.env.PORT || 5500;
 
@@ -24,6 +26,8 @@ class Server {
 
   initRoutes() {
     this.server.use("/users", userRouter);
+    this.server.use("/admin", adminRouter);
+    this.server.use("/moder", moderRouter);
   }
 
   listen() {
