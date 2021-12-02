@@ -2,16 +2,6 @@ const db = require("./../settings/db");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-function checkAccess(rights) {
-  rightsArr = rights.split(" ");
-
-  if (rightsArr.includes("admin") || rightsArr.includes("moder")) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 class Middlewares {
   checkRights(req, res, next, accessRights) {
     const { name } = req;
@@ -46,10 +36,24 @@ class Middlewares {
       return res.status(401).send("Some error!");
     }
 
-    req.name = name;
-    req.token = token;
+    let sql = `SELECT ID, name FROM users WHERE name = "${name}"`;
+    const results = [];
 
-    next();
+    db.query(sql, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        if (result[0].name === name) {
+          req.user = {
+            ID: result[0].ID,
+            name,
+            token,
+          };
+
+          next();
+        }
+      }
+    });
   }
 
   isExistSuccess(req, res, next) {
