@@ -4,7 +4,6 @@ const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 const dotenv = require("dotenv");
-const { nextTick } = require("process");
 
 dotenv.config();
 
@@ -22,7 +21,7 @@ class UserController {
     );
   }
 
-  isExist(req, res, next) {
+  isExistError(req, res, next) {
     const { name } = req.body;
 
     db.query(
@@ -41,19 +40,12 @@ class UserController {
     );
   }
 
-  async createUser(req, res) {
+  createUser(req, res) {
     const { name, login, password } = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 14);
+    const hashedPassword = bcrypt.hashSync(password, 14);
 
-    const token = jwt.sign(
-      {
-        userID: name,
-      },
-      process.env.JWT_SECRET,
-    );
-
-    const sql = `INSERT INTO users(name, login, password, rights, token) VALUES ('${name}', '${login}', '${hashedPassword}', 4, '${token}');`;
+    const sql = `INSERT INTO users(name, login, password, rights) VALUES ('${name}', '${login}', '${hashedPassword}', 4);`;
 
     db.query(sql, (err, result) => {
       if (err) {
@@ -66,20 +58,129 @@ class UserController {
     });
   }
 
+  isExistSuccess(req, res, next) {
+    const { name, password } = req.body;
+
+    db.query(
+      `SELECT name, password FROM users WHERE name = '${name}';`,
+      (error, result) => {
+        if (error) {
+          console.log("ERROR: ", error);
+        } else {
+          if (result.length > 0) {
+            const isPasswordValid = bcrypt.compareSync(
+              password,
+              result[0].password,
+            );
+            if (isPasswordValid) {
+              next();
+            } else {
+              res
+                .status(400)
+                .send(
+                  "You entered an invalid username and password combination!",
+                );
+            }
+          } else {
+            res
+              .status(400)
+              .send(
+                "You entered an invalid username and password combination!",
+              );
+          }
+        }
+      },
+    );
+  }
+
   loginUser(req, res) {
-    return res.status(200).send("User is logged.");
+    const { name } = req.body;
+
+    const token = jwt.sign(
+      {
+        name,
+      },
+      process.env.JWT_SECRET,
+    );
+
+    let sql =
+      'UPDATE `users` SET `token` = "' +
+      token +
+      '" WHERE `name` = "' +
+      name +
+      '";';
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+
+    sql =
+      'SELECT users.ID, name, access.rights, token FROM users INNER JOIN access ON users.rights = access.ID WHERE name = "' +
+      name +
+      '"';
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.status(200).json({ text: "You are logged!", result });
+      }
+    });
   }
 
-  currentUser() {
-    return res.status(200).send("It's OK");
+  authorization(req, res, next) {
+    const authHeader = req.get("Authorization");
+
+    if (authHeader === null) {
+      return res.status(401).send("Some error!");
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const { name } = payload;
+
+    if (!name) {
+      res.status(401).send("Some error!");
+    }
+
+    req.name = name;
+    req.token = token;
+
+    next();
   }
 
-  //   authorization(req, res, next) {
+  currentUser(req, res) {
+    const { name } = req;
 
-  //   }
+    let sql =
+      'SELECT users.ID, name, access.rights, token FROM users INNER JOIN access ON users.rights = access.ID WHERE name = "' +
+      name +
+      '"';
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.status(200).json({ text: "You are logged!", result });
+      }
+    });
+  }
 
   logoutUser(req, res) {
-    return res.status(200).send("User is unlogged.");
+    const { name } = req;
+
+    let sql =
+      'UPDATE `users` SET `token` = NULL WHERE `name` = "' + name + '";';
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.status(200).send("You are unlogged!");
+      }
+    });
   }
 }
 
