@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 
 class Middlewares {
   checkRights(req, res, next, accessRights) {
-    const { name } = req;
+    const { name } = req.user;
 
     let sql = `SELECT access.rights FROM access INNER JOIN users ON users.rights = access.ID WHERE name = "${name}"`;
 
@@ -16,6 +16,44 @@ class Middlewares {
           next();
         } else {
           res.status(403).send("You have not access!");
+        }
+      }
+    });
+  }
+
+  checkArticleAuthor(req, res, next) {
+    const { ID } = req.body;
+    const { name } = req.user;
+
+    let sql = `SELECT name FROM users INNER JOIN articles ON users.ID = articles.authorID WHERE articles.ID = "${ID}"`;
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        if (result[0].name === name) {
+          next();
+        } else {
+          res.status(400).send("You have not access!");
+        }
+      }
+    });
+  }
+
+  checkCommentAuthor(req, res, next) {
+    const { commentID } = req.body;
+    const { name } = req.user;
+
+    let sql = `SELECT name FROM users INNER JOIN comments ON users.ID = comments.authorID WHERE comments.ID = "${commentID}"`;
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        if (result[0].name === name) {
+          next();
+        } else {
+          res.status(400).send("You have not access!");
         }
       }
     });
@@ -37,21 +75,17 @@ class Middlewares {
     }
 
     let sql = `SELECT ID, name FROM users WHERE name = "${name}"`;
-    const results = [];
 
     db.query(sql, (err, result) => {
       if (err) {
         console.log(err);
       } else {
-        if (result[0].name === name) {
-          req.user = {
-            ID: result[0].ID,
-            name,
-            token,
-          };
-
-          next();
-        }
+        req.user = {
+          ID: result[0].ID,
+          name,
+          token,
+        };
+        next();
       }
     });
   }

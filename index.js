@@ -4,6 +4,7 @@ const userRouter = require("./users/usersRouter");
 const adminRouter = require("./admin/adminRouter");
 const moderRouter = require("./moders/modersRouter");
 const articlesRouter = require("./articles/articlesRouter");
+const otherRouter = require("./other/otherRouter");
 
 const PORT = process.env.PORT || 5500;
 
@@ -30,6 +31,7 @@ class Server {
     this.server.use("/admin", adminRouter);
     this.server.use("/moder", moderRouter);
     this.server.use("/publish", articlesRouter);
+    this.server.use("/other", otherRouter);
   }
 
   listen() {
