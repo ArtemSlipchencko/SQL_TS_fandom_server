@@ -77,20 +77,20 @@ class UserController {
   }
 
   currentUser(req, res) {
-    const { name } = req;
+    res.status(200).json({ ...req.user });
 
-    let sql =
-      'SELECT users.ID, name, access.rights, token FROM users INNER JOIN access ON users.rights = access.ID WHERE name = "' +
-      name +
-      '"';
+    // let sql =
+    //   'SELECT users.ID, name, access.rights, token FROM users INNER JOIN access ON users.rights = access.ID WHERE name = "' +
+    //   name +
+    //   '"';
 
-    db.query(sql, (err, result) => {
-      if (err) {
-        console.log(err);
-      } else {
-        res.status(200).json({ text: "You are logged!", result });
-      }
-    });
+    // db.query(sql, (err, result) => {
+    //   if (err) {
+    //     console.log(err);
+    //   } else {
+    //     res.status(200).json({ text: "You are logged!", result });
+    //   }
+    // });
   }
 
   logoutUser(req, res) {

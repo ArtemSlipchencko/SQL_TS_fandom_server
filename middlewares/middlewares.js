@@ -74,7 +74,7 @@ class Middlewares {
       return res.status(401).send("Some error!");
     }
 
-    let sql = `SELECT ID, name FROM users WHERE name = "${name}"`;
+    let sql = `SELECT ID, name, rights FROM users WHERE name = "${name}"`;
 
     db.query(sql, (err, result) => {
       if (err) {
@@ -82,8 +82,8 @@ class Middlewares {
       } else {
         req.user = {
           ID: result[0].ID,
+          rights: result[0].rights,
           name,
-          token,
         };
         next();
       }
