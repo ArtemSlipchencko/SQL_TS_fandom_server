@@ -4,7 +4,7 @@ const db = require("./../settings/db");
 
 class articlesController {
   getArticles(req, res) {
-    let sql = `SELECT articles.ID, articles.title, articles.text, name FROM articles INNER JOIN users ON articles.authorID = users.ID;`;
+    let sql = `SELECT articles.ID, articles.title, articles.text, name FROM articles INNER JOIN users ON articles.authorID = users.ID ORDER BY date DESC;`;
 
     db.query(sql, (err, result) => {
       if (err) {
@@ -34,7 +34,24 @@ class articlesController {
       if (err) {
         console.log(err);
       } else {
-        res.status(200).send("The article was published!");
+        sql = `SELECT articles.ID, articles.title, articles.text, name FROM articles INNER JOIN users ON articles.authorID = users.ID ORDER BY date DESC;`;
+
+        db.query(sql, (err, result) => {
+          if (err) {
+            console.log(err);
+          } else {
+            res.status(200).json(
+              result.map((el) => {
+                return {
+                  ID: el.ID,
+                  title: el.title,
+                  text: el.text,
+                  author: el.name,
+                };
+              }),
+            );
+          }
+        });
       }
     });
   }
