@@ -1,5 +1,3 @@
-const e = require("express");
-const { query } = require("./../settings/db");
 const db = require("./../settings/db");
 
 class articlesController {
@@ -65,7 +63,24 @@ class articlesController {
       if (err) {
         console.log(err);
       } else {
-        res.status(200).send("The article was removed!");
+        sql = `SELECT articles.ID, articles.title, articles.text, name FROM articles INNER JOIN users ON articles.authorID = users.ID ORDER BY date DESC;`;
+
+        db.query(sql, (err, result) => {
+          if (err) {
+            console.log(err);
+          } else {
+            res.status(200).json(
+              result.map((el) => {
+                return {
+                  ID: el.ID,
+                  title: el.title,
+                  text: el.text,
+                  author: el.name,
+                };
+              }),
+            );
+          }
+        });
       }
     });
   }
@@ -80,7 +95,24 @@ class articlesController {
       if (err) {
         console.log(err);
       } else {
-        res.status(200).json({ ID, text, title, author: name });
+        sql = `SELECT articles.ID, articles.title, articles.text, name FROM articles INNER JOIN users ON articles.authorID = users.ID ORDER BY date DESC;`;
+
+        db.query(sql, (err, result) => {
+          if (err) {
+            console.log(err);
+          } else {
+            res.status(200).json(
+              result.map((el) => {
+                return {
+                  ID: el.ID,
+                  title: el.title,
+                  text: el.text,
+                  author: el.name,
+                };
+              }),
+            );
+          }
+        });
       }
     });
   }
